@@ -36,12 +36,13 @@ export default function Flashcard() {
     async function getFlashcard() {
       if (!search || !user) return;
       const colRef = collection(doc(collection(db, "users"), user.id), search);
-      const docs = await getDocs(docRef);
+      const docs = await getDocs(colRef);
       const flashcards = [];
 
       docs.forEach((doc) => {
         flashcards.push({ id: doc.id, ...doc.data() });
       });
+      console.log('Fetched flashcards:', flashcards);
       setFlashcards(flashcards);
     }
     getFlashcard();
@@ -62,7 +63,7 @@ export default function Flashcard() {
         {flashcards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card>
-              <CardActionArea onClick={() => handleFlip(flashcard.name)}>
+              <CardActionArea onClick={() => handleFlip(flashcard.id)}>
                 <CardContent>
                   <Box
                     sx={{
