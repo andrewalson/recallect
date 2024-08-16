@@ -19,10 +19,10 @@ export default function Home() {
       <Head>
         {/* <SignedOut>
         <Button color="inherit" href="/page"> */}
-          <title>
-            Flashcard SaaS
-          </title>
-          <meta name="description" content="Create flashcard from your text" /> 
+        <title>
+          Flashcard SaaS
+        </title>
+        <meta name="description" content="Create flashcard from your text" />
         {/* </Button>
         </SignedOut> */}
       </Head>
@@ -54,7 +54,7 @@ export default function Home() {
           {" "}
           The easiest way to make flashcards from your text
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+        <Button variant="contained" color="primary" sx={{ mt: 2 }} href="/generate">
           Get Started
         </Button>
       </Box>
