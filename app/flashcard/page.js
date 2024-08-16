@@ -36,10 +36,13 @@ export default function Flashcard() {
     async function getFlashcard() {
       if (!search || !user) {
         console.log('Missing search parameter or user data');
+        console.log('Search parameter (collection name):', search);
         return;
       }
       try {
-        const colRef = collection(doc(collection(db, "users"), user.id), search);
+        console.log('User ID:', user.id); // Debugging line
+        console.log('Search parameter:', search); // Debugging line
+        const colRef = collection(db, `users/${user.id}/${search}`);
         const docs = await getDocs(colRef);
         const flashcards = [];
   
@@ -57,6 +60,14 @@ export default function Flashcard() {
     getFlashcard();
   }, [user, search]);
 
+
+  const handleFlip = (id) => {
+    setFlipped((prev) => ({
+      ...prev, 
+      [id]: !prev[id],
+    }));
+  };
+
   if (!isLoaded || !isSignedIn) return <></>;
 
   return (
@@ -65,7 +76,7 @@ export default function Flashcard() {
         {flashcards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card>
-              <CardActionArea onClick={() => handleFlip(flashcard.id)}>
+              <CardActionArea onClick={() => handleFlip(index)}>
                 <CardContent>
                   <Box
                     sx={{
@@ -111,7 +122,6 @@ export default function Flashcard() {
                         </Typography>
                       </div>
                     </div>
-                    {/* </main> */}
                   </Box>
                 </CardContent>
               </CardActionArea>

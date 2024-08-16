@@ -21,7 +21,7 @@ export default function Flashcards() {
         const collections = docSnap.data().flashcards || [];
         // Ensure each collection has an id
         const flashcardsWithIds = collections.map((flashcard, index) => ({
-        id: flashcard.id || `generated-id-${index}`, // Use existing id or generate one
+        id: flashcard.name || `generated-id-${index}`, // Use existing id or generate one
         ...flashcard,
       }));
         setFlashcards(flashcardsWithIds);
@@ -52,7 +52,7 @@ export default function Flashcards() {
       >
         {flashcards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card onClick={() => handleCardClick(flashcard.id)}>
+            <Card onClick={() => handleCardClick(flashcard.name || `generated-id-${index}`)}>
               <CardContent>
                 <Typography variant="h6">{flashcard.name}</Typography>
               </CardContent>
