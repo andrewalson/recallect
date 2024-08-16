@@ -21,8 +21,8 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
-
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function Flashcard() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -34,22 +34,36 @@ export default function Flashcard() {
 
   useEffect(() => {
     async function getFlashcard() {
-      if (!search || !user) return;
-      const colRef = collection(doc(collection(db, "users"), user.id), search);
-      const docs = await getDocs(docRef);
-      const flashcards = [];
-
-      docs.forEach((doc) => {
-        flashcards.push({ id: doc.id, ...doc.data() });
-      });
-      setFlashcards(flashcards);
+      if (!search || !user) {
+        console.log('Missing search parameter or user data');
+        console.log('Search parameter (collection name):', search);
+        return;
+      }
+      try {
+        console.log('User ID:', user.id); // Debugging line
+        console.log('Search parameter:', search); // Debugging line
+        const colRef = collection(db, `users/${user.id}/${search}`);
+        const docs = await getDocs(colRef);
+        const flashcards = [];
+  
+        docs.forEach((doc) => {
+          console.log('Fetched document:', doc.data()); // Debugging line
+          flashcards.push({ id: doc.id, ...doc.data() });
+        });
+  
+        console.log('Final flashcards array:', flashcards); // Debugging line
+        setFlashcards(flashcards);
+      } catch (error) {
+        console.error('Error fetching flashcards:', error);
+      }
     }
     getFlashcard();
   }, [user, search]);
 
+
   const handleFlip = (id) => {
     setFlipped((prev) => ({
-      ...prev,
+      ...prev, 
       [id]: !prev[id],
     }));
   };
@@ -62,7 +76,7 @@ export default function Flashcard() {
         {flashcards.map((flashcard, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card>
-              <CardActionArea onClick={() => handleFlip(flashcard.name)}>
+              <CardActionArea onClick={() => handleFlip(index)}>
                 <CardContent>
                   <Box
                     sx={{
@@ -108,7 +122,6 @@ export default function Flashcard() {
                         </Typography>
                       </div>
                     </div>
-                    {/* </main> */}
                   </Box>
                 </CardContent>
               </CardActionArea>
@@ -116,6 +129,11 @@ export default function Flashcard() {
           </Grid>
         ))}
       </Grid>
+      <Box display="flex" justifyContent="center" sx={{ mt: 4, mb: 4 }}>
+        <Button href="/flashcards" variant="contained">
+          Go back
+        </Button>
+      </Box>
     </Container>
   );
 }
