@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       }
 
       const batch = writeBatch(db);
-      const userDocRef = doc(collection(db, "users"), user.uid);
+      const userDocRef = doc(collection(db, "users"), user.id);
       const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {

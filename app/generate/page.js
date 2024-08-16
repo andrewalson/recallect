@@ -17,17 +17,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getDoc, doc, collection, writeBatch } from "firebase/firestore";
 import { db } from "../../firebase";
 // import Spline from "@splinetool/react-spline";
 
 
 export default function Generate() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, isLoaded } = useUser();
   const [flashcards, setFlashcards] = useState([]);
   const [flipped, setFlipped] = useState({});
   const [text, setText] = useState("");
@@ -35,6 +34,11 @@ export default function Generate() {
   const [name, setName] = useState("");
   const router = useRouter();
 
+  useEffect(() => {
+    if (isLoaded && !user) {
+      router.push("/sign-in");
+    }
+  }, [isLoaded, user]);
 
   const handleSubmit = async () => {
     fetch("/api/generate", {
@@ -67,14 +71,14 @@ export default function Generate() {
     }
 
     // Check if the user object is available and valid
-    if (!user || !user.uid) {
+    if (!user || !user.id) {
       alert("User is not authenticated. Please sign in first."); 
       return;
     }
 
     try {
       const batch = writeBatch(db);
-      const userDocRef = doc(collection(db, "users"), user.uid);
+      const userDocRef = doc(collection(db, "users"), user.id);
       const docSnap = await getDoc(userDocRef);
 
       if (docSnap.exists()) {
