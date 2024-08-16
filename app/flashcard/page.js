@@ -21,8 +21,8 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
-
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function Flashcard() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -129,6 +129,11 @@ export default function Flashcard() {
           </Grid>
         ))}
       </Grid>
+      <Box display="flex" justifyContent="center" sx={{ mt: 4, mb: 4 }}>
+        <Button href="/flashcards" variant="contained">
+          Go back
+        </Button>
+      </Box>
     </Container>
   );
 }
