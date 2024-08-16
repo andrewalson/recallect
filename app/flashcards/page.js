@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, Container, Grid } from "@mui/material";
+import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
 
 export default function Flashcards() {
-    const {isLoaded, isSignedIn, user} = useUser();
+    const { isLoaded, isSignedIn, user } = useUser();
     const [flashcards, setFlashcards] = useState([]);
     const router = useRouter();
 
@@ -22,7 +22,7 @@ export default function Flashcards() {
                 const collections = docSnap.data().flashcards || [];
                 setFlashcards(collections);
             } else {
-                await setDoc(docRef, {flashcards: []});
+                await setDoc(docRef, { flashcards: [] });
             }
         }
         getFlashcards();
@@ -47,7 +47,7 @@ export default function Flashcards() {
                         </CardContent>
                     </Card>
                 </Grid>
-        ))}
+            ))}
         </Grid>
     </Container>)
 }    

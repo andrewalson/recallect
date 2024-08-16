@@ -37,23 +37,6 @@ const systemPrompt = `
     }
 `;
 
-// const systemPrompt = `
-//     You are a flashcard creator. Generate clear, concise, and easy-to-read flashcards for students. 
-//     Ensure that the flashcards are easy to print, use, and study with. 
-//     Generate flashcards that facilitate effective learning and retention.
-//     Only generate 10 flashcards.
-
-//     Return in the following JSON format:
-//     {
-//         "flashcards": [
-//             { 
-//                 "front": "string",
-//                 "back": "string"
-//             }
-//         ]
-//     }
-// `;
-
 export async function POST(req) {
     const openai = new OpenAI();
     const data = await req.text();
