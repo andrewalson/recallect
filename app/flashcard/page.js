@@ -34,26 +34,28 @@ export default function Flashcard() {
 
   useEffect(() => {
     async function getFlashcard() {
-      if (!search || !user) return;
-      const colRef = collection(doc(collection(db, "users"), user.id), search);
-      const docs = await getDocs(colRef);
-      const flashcards = [];
-
-      docs.forEach((doc) => {
-        flashcards.push({ id: doc.id, ...doc.data() });
-      });
-      console.log('Fetched flashcards:', flashcards);
-      setFlashcards(flashcards);
+      if (!search || !user) {
+        console.log('Missing search parameter or user data');
+        return;
+      }
+      try {
+        const colRef = collection(doc(collection(db, "users"), user.id), search);
+        const docs = await getDocs(colRef);
+        const flashcards = [];
+  
+        docs.forEach((doc) => {
+          console.log('Fetched document:', doc.data()); // Debugging line
+          flashcards.push({ id: doc.id, ...doc.data() });
+        });
+  
+        console.log('Final flashcards array:', flashcards); // Debugging line
+        setFlashcards(flashcards);
+      } catch (error) {
+        console.error('Error fetching flashcards:', error);
+      }
     }
     getFlashcard();
   }, [user, search]);
-
-  const handleFlip = (id) => {
-    setFlipped((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
 
   if (!isLoaded || !isSignedIn) return <></>;
 
