@@ -1,4 +1,5 @@
-import Image from "next/image";
+'use client';
+
 import { loadStripe } from "@stripe/stripe-js";
 import getStripe from "../utils/get-stripe";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
@@ -14,6 +15,35 @@ import {
 import Head from "next/head";
 
 export default function Home() {
+
+  const handleCheckout = async (subscriptionLevel) => {
+    try {
+      const response = await fetch('/api/checkout_sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ subscriptionLevel }),
+      });
+
+      const data = await response.json();
+      console.log('Checkout session data:', data);
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error('No checkout URL received from the server');
+      }
+
+      const { sessionId } = await response.json();
+      const stripe = await getStripe();
+      stripe.redirectToCheckout({ sessionId });
+
+    } catch (error) {
+      console.error('Error in creating checkout session:', error);
+    }
+  };
+
   return (
     <Container maxWidth="100vw">
       <Head>
@@ -116,7 +146,10 @@ export default function Home() {
                 {" "}
                 Access to basic flashcard features and limited storage.
               </Typography>
-              <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+              <Button variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+                onClick={() => handleCheckout('price_basic')}>
                 Choose Basic
               </Button>
             </Box>
@@ -140,7 +173,10 @@ export default function Home() {
                 {" "}
                 Unlimited flashcards and storage, with priority support.
               </Typography>
-              <Button variant="contained" color="primary" sx={{ mt: 2 }}>
+              <Button variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+                onClick={() => handleCheckout('price_pro')}>
                 Choose Pro
               </Button>
             </Box>
