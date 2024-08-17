@@ -42,7 +42,7 @@ export default function ResultPage() {
                     <>
                         <Typography variant="h4" gutterBottom>Oops! Something went wrong.</Typography>
                         <Typography variant="body1" paragraph>
-                            We couldn't process your subscription. Please try again.
+                            Could not process your subscription. Please try again.
                         </Typography>
                     </>
                 )}
