@@ -1,5 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container } from "@mui/material";
 import Link from "next/link";
 
 export default function SignUpPage() {
@@ -11,28 +11,27 @@ export default function SignUpPage() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh", // Full screen height for centering
+        minHeight: "100vh", // Ensure the container takes the full screen height
       }}
     >
-      <Typography variant="h4" gutterBottom>
-        Join Us Today
-      </Typography>
-      <Typography variant="h6" gutterBottom>
-        Create your account to get started
-      </Typography>
-
       <Box
         sx={{
           width: "100%",
-          mt: 3,
-          mb: 3,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center", // Center content horizontally
         }}
       >
         <SignUp />
       </Box>
 
-      <Box display="flex" justifyContent="space-between" width="100%" mt={2}>
-        <Button variant="text" component={Link} href="/sign-in" fullWidth>
+      <Box
+        display="flex"
+        justifyContent="center"
+        width="100%"
+        mt={2}
+      >
+        <Button variant="text" component={Link} href="/sign-in">
           Already have an account? Sign In
         </Button>
       </Box>

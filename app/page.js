@@ -188,7 +188,7 @@ export default function Home() {
               {[
                 { icon: <TextFieldsIcon />, title: "Easy Text Input", description: "Just paste your text and we will do the rest. Creating flashcards has never been easier." },
                 { icon: <PsychologyIcon />, title: "Smart Flashcards", description: "Our AI intelligently breaks down your text into concise flashcards, perfect for studying." },
-                { icon: <DevicesIcon />, title: "Spaced", description: "Access your flashcards from any device, at any time. Study on the go with ease." },
+                { icon: <DevicesIcon />, title: "Accessible", description: "Access your flashcards from any device, at any time. Study on the go with ease." },
               ].map((feature, index) => (
                 <Grid item xs={12} md={4} key={index}>
                   <Card elevation={3} sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
