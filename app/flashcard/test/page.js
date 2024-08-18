@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Container, Typography, Button, Box, Card, CardContent } from "@mui/material";
+import { Container, Typography, Button, Box, Card, CardContent, CircularProgress } from "@mui/material";
 import { useUser } from "@clerk/nextjs";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
@@ -12,11 +12,11 @@ export default function Test() {
   const [flashcards, setFlashcards] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [difficulty, setDifficulty] = useState(0); // User's difficulty rating
+  const [difficulty, setDifficulty] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const collectionName = searchParams.get("id"); // Get the collection name from the URL
+  const collectionName = searchParams.get("id");
 
   useEffect(() => {
     async function fetchFlashcards() {
@@ -65,28 +65,22 @@ export default function Test() {
   const handleNext = async () => {
     const currentCard = flashcards[currentCardIndex];
 
-    // Calculate percentOverdue
     const now = Date.now();
     const daysSinceLastReview = (now - currentCard.dateLastReviewed) / (24 * 60 * 60 * 1000);
     const percentOverdue = Math.min(2.0, daysSinceLastReview / currentCard.daysBetweenReviews);
 
-    // Calculate performance rating based on difficulty (0-1 scale)
     const performanceRating = (6 - difficulty) / 5;
 
-    // Update difficulty
     let newDifficulty = currentCard.difficulty + percentOverdue * (1 / 17) * (8 - 9 * performanceRating);
     newDifficulty = Math.max(0.0, Math.min(1.0, newDifficulty));
 
-    // Update days between reviews
     let newDaysBetweenReviews = currentCard.daysBetweenReviews * (1 + (3 - 1) * percentOverdue * Math.random() * 1.05);
     if (performanceRating < 0.6) {
-      newDaysBetweenReviews = 1 / (1 + 3 * newDifficulty); // Reset interval if incorrect
+      newDaysBetweenReviews = 1 / (1 + 3 * newDifficulty);
     }
 
-    // Update consecutive correct answers
     const newConsecutiveCorrectAnswers = performanceRating >= 0.6 ? currentCard.consecutiveCorrectAnswers + 1 : 0;
 
-    // Prepare the updated card
     const updatedCard = {
       ...currentCard,
       difficulty: newDifficulty,
@@ -95,17 +89,14 @@ export default function Test() {
       consecutiveCorrectAnswers: newConsecutiveCorrectAnswers,
     };
 
-    // Update Firestore in the correct subcollection
     await updateDoc(doc(db, `users/${user.id}/${collectionName}`, currentCard.id), updatedCard);
 
-    // Reset state for the next card
     setShowAnswer(false);
     setDifficulty(0);
     setCurrentCardIndex((prevIndex) => prevIndex + 1);
   };
 
   const handlePauseAndExit = () => {
-    // Redirect the user back to the flashcards overview page
     router.push(`/flashcards?id=${collectionName}`);
   };
 
@@ -114,7 +105,10 @@ export default function Test() {
   if (isLoading) {
     return (
       <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
-        <Typography variant="h5">Loading flashcards...</Typography>
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading flashcards...
+        </Typography>
       </Container>
     );
   }
@@ -123,7 +117,7 @@ export default function Test() {
     return (
       <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
         <Typography variant="h5">No flashcards available.</Typography>
-        <Button variant="contained" onClick={() => router.push("/flashcards")}>
+        <Button variant="contained" onClick={() => router.push("/flashcards")} sx={{ mt: 2 }}>
           Go Back to Flashcards
         </Button>
       </Container>
@@ -134,7 +128,7 @@ export default function Test() {
     return (
       <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
         <Typography variant="h5">Review Complete!</Typography>
-        <Button variant="contained" onClick={() => router.push("/flashcards")}>
+        <Button variant="contained" onClick={() => router.push("/flashcards")} sx={{ mt: 2 }}>
           Go Back to Flashcards
         </Button>
       </Container>
@@ -149,7 +143,18 @@ export default function Test() {
         Card {currentCardIndex + 1} of {flashcards.length}
       </Typography>
 
-      <Card onClick={() => setShowAnswer(true)}>
+      <Card
+        onClick={() => setShowAnswer(true)}
+        sx={{
+          mt: 4,
+          boxShadow: 3,
+          cursor: "pointer",
+          transition: "transform 0.3s ease",
+          "&:hover": {
+            transform: "scale(1.05)",
+          },
+        }}
+      >
         <CardContent>
           <Typography variant="h5">
             {showAnswer ? currentCard.back : currentCard.front}
@@ -161,18 +166,20 @@ export default function Test() {
         {showAnswer && (
           <>
             <Typography variant="h6" sx={{ mt: 2 }}>
-              Rate difficulty:
+              Rate Difficulty:
             </Typography>
-            {[1, 2, 3, 4, 5].map((level) => (
-              <Button
-                key={level}
-                variant={difficulty === level ? "contained" : "outlined"}
-                onClick={() => setDifficulty(level)}
-                sx={{ mx: 1 }}
-              >
-                {level}
-              </Button>
-            ))}
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              {[1, 2, 3, 4, 5].map((level) => (
+                <Button
+                  key={level}
+                  variant={difficulty === level ? "contained" : "outlined"}
+                  onClick={() => setDifficulty(level)}
+                  sx={{ mx: 1 }}
+                >
+                  {level}
+                </Button>
+              ))}
+            </Box>
           </>
         )}
 
@@ -180,7 +187,7 @@ export default function Test() {
           variant="contained"
           color="primary"
           onClick={handleNext}
-          sx={{ mt: 2, display: 'block', mx: 'auto' }}
+          sx={{ mt: 4, width: "100%" }}
           disabled={!showAnswer || !difficulty}
         >
           Next Card
@@ -190,7 +197,7 @@ export default function Test() {
           variant="outlined"
           color="secondary"
           onClick={handlePauseAndExit}
-          sx={{ mt: 2, display: 'block', mx: 'auto' }}
+          sx={{ mt: 2, width: "100%" }}
         >
           Pause and Exit
         </Button>
