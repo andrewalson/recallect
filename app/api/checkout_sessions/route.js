@@ -12,6 +12,11 @@ const formatAmountForStripe = (amount) => {
 export async function POST(req) {
   const { subscriptionLevel } = await req.json();
 
+  // Handle free plan without Stripe
+  if (subscriptionLevel === "free") {
+    return NextResponse.json({ url: "/success?plan=free" }, { status: 200 });
+  }
+
   let amount;
   if (subscriptionLevel === "price_basic") {
     amount = 5;
