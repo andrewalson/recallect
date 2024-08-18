@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Container, Typography, Button, Box, Card, CardContent, CircularProgress } from "@mui/material";
+import { useState, useEffect, useMemo } from "react";
+import { Container, Typography, Button, Box, Card, CardContent, CircularProgress, CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { useUser } from "@clerk/nextjs";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { useRouter, useSearchParams } from "next/navigation";
+import AppBarComponent from "../../components/AppBarComponent";
 
 export default function Test() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -14,6 +15,7 @@ export default function Test() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [difficulty, setDifficulty] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(false); // Dark mode state
   const router = useRouter();
   const searchParams = useSearchParams();
   const collectionName = searchParams.get("id");
@@ -100,108 +102,139 @@ export default function Test() {
     router.push(`/flashcards?id=${collectionName}`);
   };
 
+  const theme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: darkMode ? "dark" : "light",
+        primary: {
+          main: "#2196f3",
+        },
+      },
+    });
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
+
   if (!isLoaded || !isSignedIn) return <></>;
 
   if (isLoading) {
     return (
-      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
-        <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Loading flashcards...
-        </Typography>
-      </Container>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppBarComponent darkMode={darkMode} setDarkMode={toggleDarkMode} />
+        <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
+          <CircularProgress />
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Loading flashcards...
+          </Typography>
+        </Container>
+      </ThemeProvider>
     );
   }
 
   if (flashcards.length === 0) {
     return (
-      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
-        <Typography variant="h5">No flashcards available.</Typography>
-        <Button variant="contained" onClick={() => router.push("/flashcards")} sx={{ mt: 2 }}>
-          Go Back to Flashcards
-        </Button>
-      </Container>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppBarComponent darkMode={darkMode} setDarkMode={toggleDarkMode} />
+        <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
+          <Typography variant="h5">No flashcards available.</Typography>
+          <Button variant="contained" onClick={() => router.push("/flashcards")} sx={{ mt: 2 }}>
+            Go Back to Flashcards
+          </Button>
+        </Container>
+      </ThemeProvider>
     );
   }
 
   if (currentCardIndex >= flashcards.length) {
     return (
-      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
-        <Typography variant="h5">Review Complete!</Typography>
-        <Button variant="contained" onClick={() => router.push("/flashcards")} sx={{ mt: 2 }}>
-          Go Back to Flashcards
-        </Button>
-      </Container>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AppBarComponent darkMode={darkMode} setDarkMode={toggleDarkMode} />
+        <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
+          <Typography variant="h5">Review Complete!</Typography>
+          <Button variant="contained" onClick={() => router.push("/flashcards")} sx={{ mt: 2 }}>
+            Go Back to Flashcards
+          </Button>
+        </Container>
+      </ThemeProvider>
     );
   }
 
   const currentCard = flashcards[currentCardIndex];
 
   return (
-    <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
-      <Typography variant="h6">
-        Card {currentCardIndex + 1} of {flashcards.length}
-      </Typography>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppBarComponent darkMode={darkMode} setDarkMode={toggleDarkMode} />
+      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 4 }}>
+        <Typography variant="h6">
+          Card {currentCardIndex + 1} of {flashcards.length}
+        </Typography>
 
-      <Card
-        onClick={() => setShowAnswer(true)}
-        sx={{
-          mt: 4,
-          boxShadow: 3,
-          cursor: "pointer",
-          transition: "transform 0.3s ease",
-          "&:hover": {
-            transform: "scale(1.05)",
-          },
-        }}
-      >
-        <CardContent>
-          <Typography variant="h5">
-            {showAnswer ? currentCard.back : currentCard.front}
-          </Typography>
-        </CardContent>
-      </Card>
-
-      <Box sx={{ mt: 4 }}>
-        {showAnswer && (
-          <>
-            <Typography variant="h6" sx={{ mt: 2 }}>
-              Rate Difficulty:
+        <Card
+          onClick={() => setShowAnswer(true)}
+          sx={{
+            mt: 4,
+            boxShadow: 3,
+            cursor: "pointer",
+            transition: "transform 0.3s ease",
+            "&:hover": {
+              transform: "scale(1.05)",
+            },
+          }}
+        >
+          <CardContent>
+            <Typography variant="h5">
+              {showAnswer ? currentCard.back : currentCard.front}
             </Typography>
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-              {[1, 2, 3, 4, 5].map((level) => (
-                <Button
-                  key={level}
-                  variant={difficulty === level ? "contained" : "outlined"}
-                  onClick={() => setDifficulty(level)}
-                  sx={{ mx: 1 }}
-                >
-                  {level}
-                </Button>
-              ))}
-            </Box>
-          </>
-        )}
+          </CardContent>
+        </Card>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleNext}
-          sx={{ mt: 4, width: "100%" }}
-          disabled={!showAnswer || !difficulty}
-        >
-          Next Card
-        </Button>
+        <Box sx={{ mt: 4 }}>
+          {showAnswer && (
+            <>
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Rate Difficulty:
+              </Typography>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <Button
+                    key={level}
+                    variant={difficulty === level ? "contained" : "outlined"}
+                    onClick={() => setDifficulty(level)}
+                    sx={{ mx: 1 }}
+                  >
+                    {level}
+                  </Button>
+                ))}
+              </Box>
+            </>
+          )}
 
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handlePauseAndExit}
-          sx={{ mt: 2, width: "100%" }}
-        >
-          Pause and Exit
-        </Button>
-      </Box>
-    </Container>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleNext}
+            sx={{ mt: 4, width: "100%" }}
+            disabled={!showAnswer || !difficulty}
+          >
+            Next Card
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handlePauseAndExit}
+            sx={{ mt: 2, width: "100%" }}
+          >
+            Pause and Exit
+          </Button>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }
