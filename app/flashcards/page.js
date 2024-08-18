@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
@@ -40,6 +41,7 @@ export default function Flashcards() {
     }
     getFlashcards();
   }, [user]);
+
 
   const theme = useMemo(() => {
     return createTheme({

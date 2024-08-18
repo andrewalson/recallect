@@ -55,9 +55,10 @@ export default function Flashcard() {
     getFlashcard();
   }, [user, search]);
 
+
   const handleFlip = (id) => {
     setFlipped((prev) => ({
-      ...prev,
+      ...prev, 
       [id]: !prev[id],
     }));
   };
