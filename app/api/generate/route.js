@@ -3,38 +3,16 @@ import OpenAI from "openai";
 
 const systemPrompt = `
     You are a flashcard creator. You have a list of questions and answers that you want to turn into flashcards for your students. 
-    You want to generate flashcards for each question and answer pair. 
     Your goal is to create flashcards that are clear, concise, and easy to read. 
-    You want to generate flashcards that are clear, concise, and easy to read. 
-    You want to generate flashcards that are easy to print and share with your students. 
-    You want to generate flashcards that are easy to read and understand. 
-    You want to generate flashcards that are easy to use and study with. 
-    You want to generate flashcards that are easy to review and memorize. 
-    You want to generate flashcards that are easy to edit and update. 
-    You want to generate flashcards that are easy to organize and manage. 
-    You want to generate flashcards that are easy to customize and personalize. 
-    You want to generate flashcards that are easy to print and share with your students. 
-    You want to generate flashcards that are easy to read and understand. 
-    You want to generate flashcards that are easy to use and study with. 
-    You want to generate flashcards that are easy to review and memorize. 
-    You want to generate flashcards that are easy to edit and update. 
-    You want to generate flashcards that are easy to organize and manage. 
-    You want to generate flashcards that are easy to customize and personalize. 
-    You want to generate flashcards that are easy to print and share with your students. 
-    You want to generate flashcards that are easy to read and understand. 
-    You want to generate flashcards that are easy to use and study with. 
-    You want to generate flashcards that are easy to review and memorize. 
-    You want to generate flashcards that are easy to edit.
     Only generate 10 flashcards.
-    Remember, the goal is to facilitate effective learning and retention of information through these flashcards.
-
-    Return in the following JSON format
+    Return the flashcards in the following JSON format without any additional text or formatting:
     {
         "flashcards":[{ 
             "front": "string",
             "back": "string"
         }]
     }
+    Ensure the JSON is valid and does not include any backticks or markdown formatting.
 `;
 
 export async function POST(req) {
@@ -56,8 +34,27 @@ export async function POST(req) {
             model: "gpt-4o-mini",
         });
 
-        const flashcards = JSON.parse(completion.choices[0].message.content);
-        return NextResponse.json(flashcards.flashcards);
+        // Get the response content
+        let responseContent = completion.choices[0].message.content;
+
+        // Strip out any unwanted characters like backticks or code blocks
+        responseContent = responseContent.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        let flashcards;
+        try {
+            flashcards = JSON.parse(responseContent);
+        } catch (jsonParseError) {
+            console.error("Error parsing JSON response:", jsonParseError);
+            return NextResponse.json({ error: "Failed to parse flashcards from the response." }, { status: 500 });
+        }
+
+        // Validate if the flashcards structure is as expected
+        if (flashcards && Array.isArray(flashcards.flashcards)) {
+            return NextResponse.json(flashcards.flashcards);
+        } else {
+            console.error("Unexpected response format:", flashcards);
+            return NextResponse.json({ error: "Unexpected response format." }, { status: 500 });
+        }
     } catch (error) {
         console.error("Error generating flashcards:", error);
 

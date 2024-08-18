@@ -1,14 +1,25 @@
 "use client";
+
+import { useState, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, Container, Grid, Typography } from "@mui/material";
+import {
+  Container,
+  Grid,
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
+import AppBarComponent from "../components/AppBarComponent";
+import LoadingCardComponent from "../components/LoadingCardComponent";
 
 export default function Flashcards() {
   const { isLoaded, isSignedIn, user } = useUser();
   const [flashcards, setFlashcards] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,11 +30,10 @@ export default function Flashcards() {
 
       if (docSnap.exists()) {
         const collections = docSnap.data().flashcards || [];
-        // Ensure each collection has an id
         const flashcardsWithIds = collections.map((flashcard, index) => ({
-        id: flashcard.name || `generated-id-${index}`, // Use existing id or generate one
-        ...flashcard,
-      }));
+          id: flashcard.name || `generated-id-${index}`,
+          ...flashcard,
+        }));
         setFlashcards(flashcardsWithIds);
       } else {
         await setDoc(docRef, { flashcards: [] });
@@ -31,6 +41,23 @@ export default function Flashcards() {
     }
     getFlashcards();
   }, [user]);
+
+
+  const theme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: darkMode ? "dark" : "light",
+        primary: {
+          main: "#2196f3",
+        },
+      },
+    });
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
+
   if (!isLoaded || !isSignedIn) return <></>;
 
   const handleCardClick = (id) => {
@@ -42,24 +69,25 @@ export default function Flashcards() {
   };
 
   return (
-    <Container maxWidth="100vw">
-      <Grid
-        container
-        spacing={3}
-        sx={{
-          mt: 4,
-        }}
-      >
-        {flashcards.map((flashcard, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card onClick={() => handleCardClick(flashcard.name || `generated-id-${index}`)}>
-              <CardContent>
-                <Typography variant="h6">{flashcard.name}</Typography>
-              </CardContent>
-            </Card>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth={false} disableGutters>
+        <AppBarComponent darkMode={darkMode} setDarkMode={toggleDarkMode} />
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
+          <Grid container spacing={3}>
+            {flashcards.map((flashcard, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <LoadingCardComponent
+                  flashcard={flashcard}
+                  onClick={() =>
+                    handleCardClick(flashcard.name || `generated-id-${index}`)
+                  }
+                />
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
-    </Container>
+        </Container>
+      </Container>
+    </ThemeProvider>
   );
 }
