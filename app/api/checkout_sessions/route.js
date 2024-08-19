@@ -19,9 +19,9 @@ export async function POST(req) {
 
   let amount;
   if (subscriptionLevel === "price_basic") {
-    amount = 5;
+    amount = 0;
   } else if (subscriptionLevel === "price_pro") {
-    amount = 10;
+    amount = 1.99;
   } else {
     console.log(
       NextResponse.json({ error: "Invalid price ID" }, { status: 400 })
@@ -43,7 +43,7 @@ export async function POST(req) {
                   : "Pro Subscription",
             },
             unit_amount: formatAmountForStripe(
-              subscriptionLevel === "price_basic" ? 5 : 10,
+              subscriptionLevel === "price_basic" ? 0 : 1.99,
               "usd"
             ),
             recurring: {

@@ -213,9 +213,8 @@ export default function Home() {
             <Typography variant="h3" gutterBottom color="primary" mb={6}>Pricing</Typography>
             <Grid container spacing={4} justifyContent="center">
               {[
-                { title: "Free", price: "$0", description: "Create up to 50 flashcards per month. Basic AI-powered card generation.", priceId: 'free' },
-                { title: "Basic", price: "$5", description: "Create up to 500 flashcards per month. Advanced AI generation and custom card templates.", priceId: 'price_basic' },
-                { title: "Pro", price: "$10", description: "Unlimited flashcards. Premium AI features, advanced analytics, and priority support.", priceId: 'price_pro' },
+                { title: "Basic", price: "$0", description: "Create up to 500 flashcards per month. Advanced AI generation and custom card templates.", priceId: 'price_basic' },
+                { title: "Pro", price: "$1.99", description: "Unlimited flashcards. Premium AI features, advanced analytics, and priority support.", priceId: 'price_pro' },
               ].map((plan, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
                   <Card elevation={3}>
