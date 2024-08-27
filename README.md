@@ -23,8 +23,9 @@
 
 ## Getting Started w/ NPM
 
-- 'git clone https://github.com/andrewalson/Flashcard-SaaS.git'
-- 'cd flashcard-saas'
-- 'npm install'
-- 'npm run dev'
+- ```git clone https://github.com/andrewalson/Flashcard-SaaS.git```
+- ```cd flashcard-saas```
+- Create .env.local & populate w/ OpenAI/Stripe/Clerk API keys
+- ```npm install```
+- ```npm run dev```
 - [http://localhost:3000](http://localhost:3000)
